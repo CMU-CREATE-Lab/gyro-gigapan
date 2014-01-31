@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+   <title>Gyro Console</title>
+   <style type="text/css">
+      #gyroNotSupported {
+         display: none;
+         text-align: center;
+      }
+
+      #mainContent {
+         display: none;
+      }
+
+      #gyroTable {
+      }
+
+      .valueCell {
+         display: table-cell;
+         border: 1px solid #cccccc;
+         padding: 5px;
+         text-align: center;
+      }
+
+      #debug {
+         width: 100%;
+         height: 400px;
+         border: 1px solid black;
+      }
+   </style>
+   <script language="JavaScript" type="text/javascript" src="lib/jquery/jquery-1.10.2.min.js"></script>
+   <script language="JavaScript" type="text/javascript" src="lib/seadragon/seadragon-min.js"></script>
+   <script language="JavaScript" type="text/javascript" src="lib/org/gigapan/seadragon/GigapanTileSource.js"></script>
+   <script language="JavaScript" type="text/javascript" src="lib/org/gigapan/seadragon/SeadragonUtils.js"></script>
+   <script language="JavaScript" type="text/javascript">
+      var accelerometerXElement = null;
+      var accelerometerYElement = null;
+      var accelerometerZElement = null;
+
+      var accelerometerAlphaElement = null;
+      var accelerometerBetaElement = null;
+      var accelerometerGammaElement = null;
+
+      var gryoAlphaElement = null;
+      var gryoBetaElement = null;
+      var gryoGammaElement = null;
+
+      $(document).ready(function() {
+         if (isGyroSupported()) {
+            $("#mainContent").show();
+
+            setupGyroEventListeners();
+         }
+         else {
+            $("#gyroNotSupported").show();
+         }
+      });
+
+      function isGyroSupported() {
+         return (typeof window.DeviceMotionEvent !== 'undefined');
+      }
+
+      function setupGyroEventListeners() {
+
+         accelerometerXElement = $("#accelerometerX");
+         accelerometerYElement = $("#accelerometerY");
+         accelerometerZElement = $("#accelerometerZ");
+
+         accelerometerAlphaElement = $("#accelerometerAlpha");
+         accelerometerBetaElement = $("#accelerometerBeta");
+         accelerometerGammaElement = $("#accelerometerGamma");
+
+         gryoAlphaElement = $("#gryoAlpha");
+         gryoBetaElement = $("#gryoBeta ");
+         gryoGammaElement = $("#gryoGamma");
+
+         window.ondevicemotion = function(event) {
+            if (typeof event['accelerationIncludingGravity'] !== 'undefined') {
+               var ax = event['accelerationIncludingGravity']['x'].toFixed(8);
+               var ay = event['accelerationIncludingGravity']['y'].toFixed(8);
+               var az = event['accelerationIncludingGravity']['z'].toFixed(8);
+               accelerometerXElement.text(ax);
+               accelerometerYElement.text(ay);
+               accelerometerZElement.text(az);
+            }
+            if (typeof event['rotationRate'] !== 'undefined') {
+               var rotation = event['rotationRate'];
+               if (rotation != null) {
+                  var arAlpha = Math.round(rotation['alpha']);
+                  var arBeta = Math.round(rotation['beta']);
+                  var arGamma = Math.round(rotation['gamma']);
+                  accelerometerAlphaElement.text(arAlpha);
+                  accelerometerBetaElement.text(arBeta);
+                  accelerometerGammaElement.text(arGamma);
+               }
+            }
+
+         }
+
+         window.ondeviceorientation = function(event) {
+            var alpha = Math.round(event['alpha']);
+            var beta = Math.round(event['beta']);
+            var gamma = Math.round(event['gamma']);
+            gryoAlphaElement.text(alpha);
+            gryoBetaElement.text(beta);
+            gryoGammaElement.text(gamma);
+         }
+      }
+   </script>
+</head>
+<body>
+<div id="gyroNotSupported">
+   Sorry, the device you're using does not appar to have a gyroscope.
+</div>
+<div id="mainContent">
+   <div id="gyroTable">
+      Gyroscope
+      <div style="display:table-row">
+         <div class="valueCell">alpha</div>
+         <div class="valueCell">beta</div>
+         <div class="valueCell">gamma</div>
+      </div>
+      <div style="display:table-row">
+         <div id="gryoAlpha" class="valueCell"></div>
+         <div id="gryoBeta" class="valueCell"></div>
+         <div id="gryoGamma" class="valueCell"></div>
+      </div>
+   </div>
+   <div id="accelerometerTable">
+      Accelerometer
+      <div style="display:table-row">
+         <div class="valueCell">x</div>
+         <div class="valueCell">y</div>
+         <div class="valueCell">z</div>
+      </div>
+      <div style="display:table-row">
+         <div id="accelerometerX" class="valueCell"></div>
+         <div id="accelerometerY" class="valueCell"></div>
+         <div id="accelerometerZ" class="valueCell"></div>
+      </div>
+      <div style="display:table-row">
+         <div class="valueCell">alpha</div>
+         <div class="valueCell">beta</div>
+         <div class="valueCell">gamma</div>
+      </div>
+      <div style="display:table-row">
+         <div id="accelerometerAlpha" class="valueCell"></div>
+         <div id="accelerometerBeta" class="valueCell"></div>
+         <div id="accelerometerGamma" class="valueCell"></div>
+      </div>
+   </div>
+</div>
+</body>
+</html>

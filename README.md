@@ -1,4 +1,4 @@
-gyro-gigapan
+Gyro Gigapan
 ============
 
-A gyroscope-controlled gigapan viewer
+A gyroscope-controlled gigapan viewer.

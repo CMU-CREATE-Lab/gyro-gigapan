@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+   <title>Gyro Gigapan</title>
+   <style type="text/css">
+      #gyroNotSupported {
+         display: none;
+         text-align: center;
+      }
+
+      #mainContent {
+         display: none;
+      }
+
+      .valueCell {
+         display: table-cell;
+         border: 1px solid #cccccc;
+         padding: 5px;
+         text-align: center;
+      }
+   </style>
+   <script language="JavaScript" type="text/javascript" src="lib/jquery/jquery-1.10.2.min.js"></script>
+   <script language="JavaScript" type="text/javascript" src="lib/org/cmucreatelab/events/EventManager.js"></script>
+   <script language="JavaScript" type="text/javascript" src="js/org/cmucreatelab/motion/Gyroscope.js"></script>
+   <script language="JavaScript" type="text/javascript">
+      var gyroscope = new org.cmucreatelab.motion.Gyroscope();
+
+      var cumulativeRotationAngle = 0;
+
+      var gryoAlphaElement = null;
+      var gryoBetaElement = null;
+      var gryoGammaElement = null;
+
+      var gryoAlphaDeltaElement = null;
+      var gryoBetaDeltaElement = null;
+      var gryoGammaDeltaElement = null;
+
+      $(document).ready(function() {
+         gryoAlphaElement = $("#gryoAlpha");
+         gryoBetaElement = $("#gryoBeta");
+         gryoGammaElement = $("#gryoGamma");
+
+         gryoAlphaDeltaElement = $("#gryoAlphaDelta");
+         gryoBetaDeltaElement = $("#gryoBetaDelta");
+         gryoGammaDeltaElement = $("#gryoGammaDelta");
+
+         // delay initialization to allow time for Gyroscope can do its support detection
+         window.setTimeout(initialize, 500);
+      });
+
+      function initialize() {
+         if (gyroscope.isSupported()) {
+            gyroscope.addEventListener('rotation', function(rotations, deltas) {
+               gryoAlphaElement.text(Math.round(rotations['alpha']));
+               gryoBetaElement.text(Math.round(rotations['beta']));
+               gryoGammaElement.text(Math.round(rotations['gamma']));
+               gryoAlphaDeltaElement.text(deltas['alpha'].toFixed(8));
+               gryoBetaDeltaElement.text(deltas['beta'].toFixed(8));
+               gryoGammaDeltaElement.text(deltas['gamma'].toFixed(8));
+            });
+            $("#mainContent").show();
+
+         }
+         else {
+            $("#gyroNotSupported").show();
+         }
+      }
+   </script>
+</head>
+<body>
+<div id="gyroNotSupported">
+   Sorry, the device you're using does not appear to have a gyroscope.
+</div>
+<div id="mainContent">
+   <div id="gyroTable">
+      Gyroscope
+      <div style="display:table-row">
+         <div class="valueCell">alpha</div>
+         <div class="valueCell">beta</div>
+         <div class="valueCell">gamma</div>
+      </div>
+      <div style="display:table-row">
+         <div id="gryoAlpha" class="valueCell"></div>
+         <div id="gryoBeta" class="valueCell"></div>
+         <div id="gryoGamma" class="valueCell"></div>
+      </div>
+      <div style="display:table-row">
+         <div id="gryoAlphaDelta" class="valueCell"></div>
+         <div id="gryoBetaDelta" class="valueCell"></div>
+         <div id="gryoGammaDelta" class="valueCell"></div>
+      </div>
+   </div>
+</div>
+</body>
+</html>

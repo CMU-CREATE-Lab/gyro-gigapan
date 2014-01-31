@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html>
+<head>
+   <title>Gyro Gigapan</title>
+   <style type="text/css">
+      #gyroNotSupported {
+         display: none;
+         text-align: center;
+      }
+
+      #mainContent {
+         display: none;
+      }
+
+      #gyroTable {
+         position: absolute;
+         top: 5px;
+         left: 5px;
+         border: 1px solid black;
+         width: 170px;
+         padding: 2px;
+         background-color: rgba(255, 255, 255, .5);
+         color: black;
+         z-index: 1000;
+      }
+
+      .tableCell {
+         display: table-cell;
+         padding: 0px;
+      }
+
+      .headingCell {
+         width: 120px;
+         font-weight: bold;
+         text-align: left;
+      }
+
+      .valueCell {
+         width: 50px;
+         text-align: right;
+      }
+
+      #gigapanViewer {
+         position: absolute;
+         top: 0;
+         bottom: 0;
+         left: 0;
+         right: 0;
+         margin: 0;
+         padding: 0;
+         background-color: black;
+      }
+   </style>
+   <script language="JavaScript" type="text/javascript" src="lib/jquery/jquery-1.10.2.min.js"></script>
+   <script language="JavaScript" type="text/javascript" src="lib/seadragon/seadragon-min.js"></script>
+   <script language="JavaScript" type="text/javascript" src="lib/org/cmucreatelab/events/EventManager.js"></script>
+   <script language="JavaScript" type="text/javascript" src="lib/org/gigapan/seadragon/GigapanTileSource.js"></script>
+   <script language="JavaScript" type="text/javascript" src="lib/org/gigapan/seadragon/SeadragonUtils.js"></script>
+   <script language="JavaScript" type="text/javascript" src="js/org/cmucreatelab/motion/Gyroscope.js"></script>
+   <script language="JavaScript" type="text/javascript">
+      var gyroscope = new org.cmucreatelab.motion.Gyroscope();
+      var ROTATION_THRESHOLD_NEGATIVE = -300;
+      var ROTATION_THRESHOLD_POSITIVE = 300;
+      var MAX_ROTATION_ANGLE = 360 * 4;
+
+      var gigapan = {id : 305, width : 126792, height : 1989};
+
+      var cumulativeRotationAngle = 0;
+      var clampedCumulativeRotationAngle = 0;
+
+      var gryoAlphaElement = null;
+      var gryoAlphaDeltaElement = null;
+      var cumulativeRotationAngleElement = null;
+      var clampedCumulativeRotationAngleElement = null;
+
+      var viewer;
+      var currentCenterPoint = null;
+      var isMobileDeviceUserAgent = (navigator.userAgent.indexOf('iPhone') != -1) || (navigator.userAgent.indexOf('iPod') != -1) || (navigator.userAgent.indexOf('iPad') != -1);
+
+      $(document).ready(function() {
+         // prevent touch scrolling
+         $("#mainContent").bind("touchmove", false);
+
+         gryoAlphaElement = $("#gryoAlpha");
+         gryoAlphaDeltaElement = $("#gryoAlphaDelta");
+         cumulativeRotationAngleElement = $("#rotationAngle");
+         clampedCumulativeRotationAngleElement = $("#clampedRotationAngle");
+
+         // delay initialization to allow time for Gyroscope to do its support detection
+         window.setTimeout(initialize, 500);
+      });
+
+      function initialize() {
+         if (gyroscope.isSupported()) {
+            gyroscope.addEventListener('rotation', handleRotationEvent);
+            $("#mainContent").show();
+            loadGigapan();
+         }
+         else {
+            $("#gyroNotSupported").show();
+         }
+      }
+
+      function handleRotationEvent(rotations, deltas) {
+         if (rotations['alpha'] && deltas['alpha']) {
+            gryoAlphaElement.text(rotations['alpha'].toFixed(3));
+            gryoAlphaDeltaElement.text(deltas['alpha'].toFixed(3));
+
+            var alphaDelta = deltas['alpha'];
+            if (deltas['alpha'] < ROTATION_THRESHOLD_NEGATIVE) {
+               alphaDelta = 360 + alphaDelta;
+            }
+            else if (deltas['alpha'] > ROTATION_THRESHOLD_POSITIVE) {
+               alphaDelta = alphaDelta - 360;
+            }
+
+            cumulativeRotationAngle += alphaDelta;
+
+            clampedCumulativeRotationAngle += -1 * alphaDelta;
+            clampedCumulativeRotationAngle = Math.min(Math.max(clampedCumulativeRotationAngle, 0), MAX_ROTATION_ANGLE);
+
+            cumulativeRotationAngleElement.text(cumulativeRotationAngle.toFixed(3));
+            clampedCumulativeRotationAngleElement.text(clampedCumulativeRotationAngle.toFixed(3));
+
+            setView(false);
+         }
+      }
+
+      function loadGigapan() {
+         // max number of concurrent image downloads
+         Seadragon.Config.imageLoaderLimit = 6;
+
+         Seadragon.Config.autoHideControls = false;
+         Seadragon.Config.imagePath = "lib/seadragon/img/";
+
+         // create and initialize the viewer
+         viewer = new Seadragon.Viewer("gigapanViewer");
+         viewer.setDashboardEnabled(false);
+         viewer.addEventListener("open", handleViewerOpen);
+         viewer.addEventListener("animationfinish", handleViewerAnimationFinish);
+
+         // Override the normal Seadragon behavior so there's no zoom when the user clicks (or taps)
+         viewer.tracker.clickHandler = function(tracker, mousePosition, quick, shift) {
+            // do nothing
+         };
+
+         window.setTimeout(function() {
+            // compute the index of the tile server for this gigapan (note: this may change in the future, perhaps without warning!)
+            var tileServerIndex = '' + Math.floor(gigapan.id / 1000);
+            if (tileServerIndex.length < 2) {
+               tileServerIndex = '0' + tileServerIndex;
+            }
+
+            var urlPrefix = "http://tile" + tileServerIndex + ".gigapan.org/gigapans0/" + gigapan.id + "/tiles";
+
+            if (gigapan.authKey != null && gigapan.authKey.length > 0) {
+               urlPrefix += "." + gigapan.authKey;
+            }
+
+            // create the tile source
+            var gigapanSource = new org.gigapan.seadragon.GigapanTileSource(
+                  urlPrefix,
+                  gigapan.width,
+                  gigapan.height
+            );
+
+            // tell the viewer to open the tile source
+            viewer.openTileSource(gigapanSource);
+         }, 1);
+      }
+
+      function handleViewerOpen() {
+         // store the center point, used to properly place the image upon orientation change
+         storeViewerCenterPoint();
+
+         setView(true);
+      }
+
+      function setView(willDoZoom) {
+         var gigapanViewerElement = $("#gigapanViewer");
+         var gigapanAspectRatioInverse = gigapan.height / gigapan.width;
+         var viewerAspectRatioInverse = gigapanViewerElement.height() / gigapanViewerElement.width();
+         var width = gigapanAspectRatioInverse / viewerAspectRatioInverse;
+
+         console.log("viewer size = (" + gigapanViewerElement.width() + "," + gigapanViewerElement.height() + ")");
+         console.log("gigapanAspectRatioInverse = " + gigapanAspectRatioInverse);
+         console.log("viewerAspectRatioInverse = " + viewerAspectRatioInverse);
+
+         var x = clampedCumulativeRotationAngle / MAX_ROTATION_ANGLE;
+
+         if (x > (1 - width)) {
+            x = 1 - width;
+         }
+
+         // zoom to the initial bounds
+         var bounds = new Seadragon.Rect(x,
+                                         0,
+                                         width,
+                                         gigapanAspectRatioInverse);
+
+         console.log(bounds.toString());
+         if (willDoZoom) {
+            viewer.viewport.fitBounds(bounds, true);
+         }
+         else {
+            viewer.viewport.panTo(bounds.getCenter(), true);
+         }
+      }
+
+      function handleViewerAnimationFinish() {
+         storeViewerCenterPoint();
+      }
+
+      function storeViewerCenterPoint() {
+         if (viewer && viewer.viewport && viewer.isOpen()) {
+            // store the center point, used to properly orient the image upon resize
+            currentCenterPoint = viewer.viewport.getCenter();
+         }
+      }
+
+      function recenterGigapan() {
+         if (viewer && viewer.viewport && viewer.isOpen() && currentCenterPoint != null) {
+            // pan to the current center point
+            viewer.viewport.panTo(currentCenterPoint, true);
+         }
+      }
+
+      $(window).resize(function() {
+         // only set the viewer container size if the user agent isn't a mobile device since you can't
+         // resize the browser on a mobile device except by changing the orientation (and that's handled
+         // by handleOrientationChange()).
+         if (!isMobileDeviceUserAgent) {
+            recenterGigapan();
+         }
+
+         console.log("resize!");
+         setView();
+      });
+
+      function handleOrientationChange() {
+         recenterGigapan();
+      }
+
+   </script>
+</head>
+<body>
+<div id="gyroNotSupported">
+   Sorry, the device you're using does not appear to have a gyroscope.
+</div>
+<div id="mainContent">
+   <div id="gyroTable">
+      <div style="display:table-row">
+         <div class="tableCell headingCell">alpha:</div>
+         <div id="gryoAlpha" class="tableCell valueCell"></div>
+      </div>
+      <div style="display:table-row">
+         <div class="tableCell headingCell">alpha delta:</div>
+         <div id="gryoAlphaDelta" class="tableCell valueCell"></div>
+      </div>
+      <div style="display:table-row">
+         <div class="tableCell headingCell">angle:</div>
+         <div id="rotationAngle" class="tableCell valueCell"></div>
+      </div>
+      <div style="display:table-row">
+         <div class="tableCell headingCell">clamped angle:</div>
+         <div id="clampedRotationAngle" class="tableCell valueCell"></div>
+      </div>
+   </div>
+   <div id="gigapanViewer"></div>
+</div>
+</body>
+</html>
