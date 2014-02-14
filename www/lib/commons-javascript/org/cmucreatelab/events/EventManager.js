@@ -97,11 +97,11 @@ else {
                }
             }
          }
-      }
+      };
 
       this.hasListenersFor = function(eventName) {
          var listeners = eventListeners[eventName];
          return (typeof listeners !== 'undefined' && listeners.length > 0);
-      }
+      };
    };
 })();

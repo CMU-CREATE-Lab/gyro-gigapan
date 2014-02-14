@@ -110,4 +110,3 @@ if (!org.cmucreatelab.events.EventManager) {
       this.removeEventListener = eventManager.removeEventListener;
    }
 })();
-

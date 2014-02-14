@@ -53,17 +53,18 @@
    </style>
    <script language="JavaScript" type="text/javascript" src="lib/jquery/jquery-1.10.2.min.js"></script>
    <script language="JavaScript" type="text/javascript" src="lib/seadragon/seadragon-min.js"></script>
-   <script language="JavaScript" type="text/javascript" src="lib/org/cmucreatelab/events/EventManager.js"></script>
-   <script language="JavaScript" type="text/javascript" src="lib/org/gigapan/seadragon/GigapanTileSource.js"></script>
-   <script language="JavaScript" type="text/javascript" src="lib/org/gigapan/seadragon/SeadragonUtils.js"></script>
-   <script language="JavaScript" type="text/javascript" src="js/org/cmucreatelab/motion/Gyroscope.js"></script>
+   <script language="JavaScript" type="text/javascript" src="lib/commons-javascript/org/cmucreatelab/events/EventManager.js"></script>
+   <script language="JavaScript" type="text/javascript" src="lib/commons-javascript/org/cmucreatelab/motion/Gyroscope.js"></script>
+   <script language="JavaScript" type="text/javascript" src="lib/seadragon-gigapan/org/gigapan/seadragon/GigapanTileSource.js"></script>
+   <script language="JavaScript" type="text/javascript" src="lib/seadragon-gigapan/org/gigapan/seadragon/SeadragonUtils.js"></script>
+   <script language="JavaScript" type="text/javascript" src="lib/seadragon-gigapan/org/gigapan/GigapanUtils.js"></script>
    <script language="JavaScript" type="text/javascript">
       var gyroscope = new org.cmucreatelab.motion.Gyroscope();
       var ROTATION_THRESHOLD_NEGATIVE = -300;
       var ROTATION_THRESHOLD_POSITIVE = 300;
       var MAX_ROTATION_ANGLE = 360 * 4;
 
-      var gigapan = {id : 305, width : 126792, height : 1989};
+      var gigapan = {id : 305, authKey: null, width : 126792, height : 1989};
 
       var cumulativeRotationAngle = 0;
       var clampedCumulativeRotationAngle = 0;
@@ -145,21 +146,9 @@
          };
 
          window.setTimeout(function() {
-            // compute the index of the tile server for this gigapan (note: this may change in the future, perhaps without warning!)
-            var tileServerIndex = '' + Math.floor(gigapan.id / 1000);
-            if (tileServerIndex.length < 2) {
-               tileServerIndex = '0' + tileServerIndex;
-            }
-
-            var urlPrefix = "http://tile" + tileServerIndex + ".gigapan.org/gigapans0/" + gigapan.id + "/tiles";
-
-            if (gigapan.authKey != null && gigapan.authKey.length > 0) {
-               urlPrefix += "." + gigapan.authKey;
-            }
-
             // create the tile source
             var gigapanSource = new org.gigapan.seadragon.GigapanTileSource(
-                  urlPrefix,
+                  org.gigapan.GigapanUtils.createTileSourceUrlPrefixForGigapan(gigapan['id'], gigapan['authKey']),
                   gigapan.width,
                   gigapan.height
             );
