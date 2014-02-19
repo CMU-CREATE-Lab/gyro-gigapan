@@ -19,7 +19,9 @@
       </profile>
     </annotationProcessing>
   </component>
-  <component name="CopyrightManager" default="" />
+  <component name="CopyrightManager" default="">
+    <module2copyright />
+  </component>
   <component name="DependencyValidationManager">
     <option name="SKIP_IMPORT_STATEMENTS" value="false" />
   </component>
@@ -69,6 +71,39 @@
   </component>
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
+  </component>
+  <component name="libraryTable">
+    <library name="CREATE Lab Commons JavaScript" type="javaScript">
+      <CLASSES />
+      <JAVADOC />
+      <SOURCES>
+        <root url="file://$PROJECT_DIR$/www/lib/commons-javascript/org/cmucreatelab/motion/Gyroscope.js" />
+        <root url="file://$PROJECT_DIR$/www/lib/commons-javascript/org/cmucreatelab/events/EventManager.js" />
+      </SOURCES>
+    </library>
+    <library name="jQuery 1.10.2" type="javaScript">
+      <CLASSES>
+        <root url="file://$PROJECT_DIR$/www/lib/jquery/jquery-1.10.2.min.js" />
+      </CLASSES>
+      <JAVADOC />
+      <SOURCES />
+    </library>
+    <library name="Seadragon" type="javaScript">
+      <CLASSES>
+        <root url="file://$PROJECT_DIR$/www/lib/seadragon/seadragon-min.js" />
+      </CLASSES>
+      <JAVADOC />
+      <SOURCES />
+    </library>
+    <library name="Seadragon Gigapan" type="javaScript">
+      <CLASSES />
+      <JAVADOC />
+      <SOURCES>
+        <root url="file://$PROJECT_DIR$/www/lib/seadragon-gigapan/org/gigapan/seadragon/GigapanTileSource.js" />
+        <root url="file://$PROJECT_DIR$/www/lib/seadragon-gigapan/org/gigapan/seadragon/SeadragonUtils.js" />
+        <root url="file://$PROJECT_DIR$/www/lib/seadragon-gigapan/org/gigapan/GigapanUtils.js" />
+      </SOURCES>
+    </library>
   </component>
 </project>
 
