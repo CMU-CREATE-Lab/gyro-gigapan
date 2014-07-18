@@ -19,9 +19,7 @@
       </profile>
     </annotationProcessing>
   </component>
-  <component name="CopyrightManager" default="">
-    <module2copyright />
-  </component>
+  <component name="CopyrightManager" default="" />
   <component name="DependencyValidationManager">
     <option name="SKIP_IMPORT_STATEMENTS" value="false" />
   </component>
@@ -74,6 +72,12 @@
   </component>
   <component name="libraryTable">
     <library name="CREATE Lab Commons JavaScript" type="javaScript">
+      <properties>
+        <sourceFilesUrls>
+          <item url="file://$PROJECT_DIR$/www/lib/commons-javascript/org/cmucreatelab/events/EventManager.js" />
+          <item url="file://$PROJECT_DIR$/www/lib/commons-javascript/org/cmucreatelab/motion/Gyroscope.js" />
+        </sourceFilesUrls>
+      </properties>
       <CLASSES />
       <JAVADOC />
       <SOURCES>
@@ -96,6 +100,13 @@
       <SOURCES />
     </library>
     <library name="Seadragon Gigapan" type="javaScript">
+      <properties>
+        <sourceFilesUrls>
+          <item url="file://$PROJECT_DIR$/www/lib/seadragon-gigapan/org/gigapan/GigapanUtils.js" />
+          <item url="file://$PROJECT_DIR$/www/lib/seadragon-gigapan/org/gigapan/seadragon/GigapanTileSource.js" />
+          <item url="file://$PROJECT_DIR$/www/lib/seadragon-gigapan/org/gigapan/seadragon/SeadragonUtils.js" />
+        </sourceFilesUrls>
+      </properties>
       <CLASSES />
       <JAVADOC />
       <SOURCES>
