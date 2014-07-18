@@ -62,7 +62,7 @@
       var gyroscope = new org.cmucreatelab.motion.Gyroscope();
       var ROTATION_THRESHOLD_NEGATIVE = -300;
       var ROTATION_THRESHOLD_POSITIVE = 300;
-      var MAX_ROTATION_ANGLE = 360 * 4;
+      var MAX_ROTATION_ANGLE = 360 * 4;         // the second number determines how many times you have to rotate to see the entire image (and thus, higher numbers = less jitter)
 
       var gigapan = {id : 305, authKey: null, width : 126792, height : 1989};
 
